@@ -110,10 +110,10 @@ jobs:
           @(
               'ScreenEase Windows Package'
               ''
-              '1. Run Start-Service.ps1.'
-              '2. Run Start-Desktop.ps1.'
+              'Run Start-Desktop.ps1 or ScreenEase.Desktop\ScreenEase.Desktop.exe.'
               ''
-              'The desktop client connects through pipe:screenease.core by default.'
+              'The desktop client starts the core service automatically through pipe:screenease.core.'
+              'Start-Service.ps1 is only kept for troubleshooting.'
           ) | Set-Content -LiteralPath (Join-Path $packageRoot 'RUNNING.txt') -Encoding utf8
 
       - name: Create zip
@@ -145,7 +145,7 @@ jobs:
               '- ScreenEase.CoreService'
               '- ScreenEase.NativeHost'
               ''
-              'Run Start-Service.ps1 first, then Start-Desktop.ps1.'
+              'Run Start-Desktop.ps1 or ScreenEase.Desktop\ScreenEase.Desktop.exe. The desktop client starts the core service automatically.'
           ) | Set-Content -LiteralPath $notesPath -Encoding utf8
 
           $asset = $env:ZIP_PATH

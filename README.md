@@ -55,18 +55,18 @@ ScreenEase 目前处于开发阶段，已经可以在 Windows 上运行核心护
 dotnet build .\ScreenEase.sln -c Release
 ```
 
-启动 core service：
+启动桌面 UI。桌面会自动检查并启动本机 core service：
+
+```powershell
+dotnet run --project .\src\ScreenEase.Desktop\ScreenEase.Desktop.csproj -c Release
+```
+
+也可以单独启动 core service 做调试：
 
 ```powershell
 $env:ScreenEase__Driver = 'windows'
 $env:ScreenEase__SettingsPath = "$PWD\.local\settings.json"
 dotnet run --project .\src\ScreenEase.CoreService\ScreenEase.CoreService.csproj -c Release -- --pipe-only
-```
-
-另开一个终端启动桌面 UI：
-
-```powershell
-dotnet run --project .\src\ScreenEase.Desktop\ScreenEase.Desktop.csproj -c Release
 ```
 
 桌面 UI 默认连接：
@@ -93,7 +93,7 @@ dotnet run --project .\tests\ScreenEase.Tests\ScreenEase.Tests.csproj -c Release
 
 ## 发布
 
-推送 `v*` 标签会自动创建 GitHub Release，并上传 `win-x64` 压缩包。
+推送 `v*` 标签会自动创建 GitHub Release，并上传 `win-x64` 压缩包。发布包中直接运行 `ScreenEase.Desktop\ScreenEase.Desktop.exe` 即可，桌面端会自动启动后端。
 
 ```powershell
 git tag v0.1.0

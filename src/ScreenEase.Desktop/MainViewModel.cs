@@ -7,7 +7,7 @@ public sealed class MainViewModel : ObservableObject
 {
     private EyeCareSettings? _settings;
     private RestTimerState? _restTimer;
-    private string _serviceUrl = "pipe:screenease.core";
+    private string _serviceUrl = ReadInitialEndpoint();
     private string _statusText = "Offline";
     private string _lastUpdatedText = "-";
     private string _errorText = string.Empty;
@@ -267,7 +267,14 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public string ConnectionSummary =>
-        IsConnected ? $"已连接 · {LastUpdatedText}" : "未连接";
+        IsConnected
+            ? $"已连接 · {LastUpdatedText}"
+            : StatusText switch
+            {
+                "Starting" => "正在启动",
+                "Error" => "连接失败",
+                _ => "未连接"
+            };
 
     public string FilterButtonText =>
         IsFilterEnabled ? "关闭护眼" : "开启护眼";
@@ -287,9 +294,8 @@ public sealed class MainViewModel : ObservableObject
     public async Task RefreshAsync() =>
         await RunAsync(async cancellationToken =>
         {
-            using var client = CreateClient();
-            await LoadFreshStateAsync(client, cancellationToken);
-        }, markDisconnectedOnError: true);
+            await LoadFreshStateWithBootstrapAsync(cancellationToken);
+        }, markDisconnectedOnError: true, timeout: TimeSpan.FromSeconds(24));
 
     public void TickRestTimer()
     {
@@ -458,6 +464,31 @@ public sealed class MainViewModel : ObservableObject
 
     private ScreenEaseClient CreateClient() => new(ServiceUrl);
 
+    private static string ReadInitialEndpoint()
+    {
+        var endpoint = Environment.GetEnvironmentVariable("ScreenEase__Endpoint");
+        return string.IsNullOrWhiteSpace(endpoint) ? "pipe:screenease.core" : endpoint.Trim();
+    }
+
+    private async Task LoadFreshStateWithBootstrapAsync(CancellationToken cancellationToken)
+    {
+        if (CoreServiceLauncher.CanLaunch(ServiceUrl))
+        {
+            await CoreServiceLauncher.EnsureRunningAsync(
+                ServiceUrl,
+                () =>
+                {
+                    IsConnected = false;
+                    StatusText = "Starting";
+                    ErrorText = string.Empty;
+                },
+                cancellationToken);
+        }
+
+        using var client = CreateClient();
+        await LoadFreshStateAsync(client, cancellationToken);
+    }
+
     private async Task LoadFreshStateAsync(ScreenEaseClient client, CancellationToken cancellationToken)
     {
         var state = await client.GetStateAsync(cancellationToken);
@@ -470,7 +501,8 @@ public sealed class MainViewModel : ObservableObject
 
     private async Task RunAsync(
         Func<CancellationToken, Task> action,
-        bool markDisconnectedOnError)
+        bool markDisconnectedOnError,
+        TimeSpan? timeout = null)
     {
         if (IsBusy)
         {
@@ -480,7 +512,7 @@ public sealed class MainViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(8));
+            using var cancellation = new CancellationTokenSource(timeout ?? TimeSpan.FromSeconds(8));
             await action(cancellation.Token);
         }
         catch (Exception exception)

@@ -16,6 +16,7 @@
 - Windows named pipe IPC and `--pipe-only` service mode.
 - REST API documentation.
 - Native WPF/.NET 8 desktop UI.
+- Desktop auto-start for the local core service.
 - No-package test runner.
 
 ## Verified
