@@ -1,136 +1,110 @@
 # ScreenEase
 
-ScreenEase is an open-source eye-care display controller for Windows.
+ScreenEase 是一个开源的 Windows 护眼工具，用原生 WPF 界面调节屏幕色温和亮度，并提供休息提醒。
 
-The backend is a front-end-agnostic core service. The desktop client is a native WPF/.NET 8 Windows UI that talks to the service over Windows named pipes by default and does not use WebView.
+它适合长时间看屏幕的人：写代码、阅读文档、办公、看视频时，可以快速切换更舒服的显示模式，也可以保存自己的常用配置。
 
-## What Is Implemented
+## 功能
 
-- Windows display tint and brightness through the public GDI `SetDeviceGammaRamp` API.
-- Monitor enumeration through `EnumDisplayMonitors` and `GetMonitorInfoW`.
-- Built-in profiles: 明亮, 柔和, 清晰, 影音, 高亮, 舒缓, 我的模式.
-- Day/night schedule selection with separate night profile values.
-- Layered-window dimming API kept as an internal compatibility path.
-- Global hotkey registration through `RegisterHotKey`.
-- Rest timer state machine with work, short break, long break, pause, resume, reset.
-- JSON settings persistence.
-- Import from legacy INI-style settings files.
-- Windows named pipe IPC for native desktop control without a TCP listener.
-- REST API suitable for a separate frontend.
-- Native WPF desktop client for profiles, manual display control, rest timer, and monitor status.
-- `memory` driver for safe API testing without changing the screen.
+- 调节屏幕色温和亮度
+- 内置多种显示模式：明亮、柔和、清晰、影音、高亮、舒缓、我的模式
+- 保存当前调节为自定义模式
+- 新增多个自定义模式
+- 休息提醒：专注、短休、长休、暂停、继续、重置
+- 支持多显示器
+- 使用 Windows 原生命名管道通信，桌面使用时无需占用 TCP 端口
+- 原生 WPF/.NET 8 桌面界面，未使用 WebView
 
-## Project Layout
+## 当前状态
 
-```text
-src/ScreenEase.Core         Domain models, gamma ramp, settings, timer, drivers
-src/ScreenEase.CoreService  ASP.NET Core REST service and background loop
-src/ScreenEase.Desktop      Native WPF/.NET 8 Windows UI
-src/ScreenEase.NativeHost   Chromium native messaging stdio host
-tests/ScreenEase.Tests      No-package console test runner
-docs/API.md                   HTTP API reference
-docs/DESKTOP_UI.md            Native desktop UI notes
-docs/NAMED_PIPE_IPC.md        Native Windows IPC protocol
-docs/STATUS.md                Current milestone status and remaining parity work
-docs/NATIVE_MESSAGING.md      Native messaging protocol and install notes
-```
+ScreenEase 目前处于开发阶段，已经可以在 Windows 上运行核心护眼功能和桌面 UI。
 
-## Build
+已经实现：
+
+- core service
+- WPF 桌面客户端
+- 色温/亮度调节
+- 多显示器应用
+- 自定义模式保存和新增
+- 休息提醒设置
+- 命名管道 IPC
+- 测试用 memory driver
+
+后续计划：
+
+- 托盘图标
+- 安装包
+- 开机自启动
+- 更多显示器环境测试
+
+## 系统要求
+
+- Windows 10 或 Windows 11
+- .NET 8 SDK
+- Visual Studio 2022，或任意支持 .NET 8 的编辑器
+
+## 快速运行
+
+在仓库根目录执行：
 
 ```powershell
 dotnet build .\ScreenEase.sln -c Release
 ```
 
-## Test
+启动 core service：
 
 ```powershell
-dotnet run --project .\tests\ScreenEase.Tests\ScreenEase.Tests.csproj -c Release
-```
-
-## Run Safely With Memory Driver
-
-This mode exercises the core service through a Windows named pipe without touching display gamma or opening a TCP port.
-
-```powershell
-$env:ScreenEase__Driver = 'memory'
+$env:ScreenEase__Driver = 'windows'
 $env:ScreenEase__SettingsPath = "$PWD\.local\settings.json"
 dotnet run --project .\src\ScreenEase.CoreService\ScreenEase.CoreService.csproj -c Release -- --pipe-only
 ```
 
-Run the native desktop UI:
+另开一个终端启动桌面 UI：
 
 ```powershell
 dotnet run --project .\src\ScreenEase.Desktop\ScreenEase.Desktop.csproj -c Release
 ```
 
-The desktop UI defaults to:
+桌面 UI 默认连接：
 
 ```text
 pipe:screenease.core
 ```
 
-## Run HTTP API For Debugging
+## 安全测试模式
+
+如果只想测试程序流程，使用 memory driver。这个模式不会修改屏幕显示效果。
 
 ```powershell
 $env:ScreenEase__Driver = 'memory'
 $env:ScreenEase__SettingsPath = "$PWD\.local\settings.json"
-dotnet run --project .\src\ScreenEase.CoreService\ScreenEase.CoreService.csproj -c Release -- --urls http://127.0.0.1:5128
-```
-
-Open:
-
-```text
-http://127.0.0.1:5128/api/state
-```
-
-The desktop UI can also connect to this endpoint when its address box is set to:
-
-```text
-http://127.0.0.1:5128
-```
-
-## Run With Windows Display Driver
-
-```powershell
-$env:ScreenEase__Driver = 'windows'
 dotnet run --project .\src\ScreenEase.CoreService\ScreenEase.CoreService.csproj -c Release -- --pipe-only
 ```
 
-Stopping the service resets gamma to 6500K and 100 percent brightness.
-
-## Example API Calls
-
-Apply the reading profile:
+## 测试
 
 ```powershell
-Invoke-RestMethod `
-  -Uri http://127.0.0.1:5128/api/apply `
-  -Method Post `
-  -ContentType application/json `
-  -Body '{"profileId":"reading","enabled":true}'
+dotnet run --project .\tests\ScreenEase.Tests\ScreenEase.Tests.csproj -c Release
 ```
 
-Import legacy INI settings:
+## 项目结构
 
-```powershell
-Invoke-RestMethod `
-  -Uri http://127.0.0.1:5128/api/import/legacy-settings `
-  -Method Post `
-  -ContentType application/json `
-  -Body '{"path":"C:\\Path\\To\\settings.dat"}'
+```text
+src/ScreenEase.Core         核心模型、显示驱动、设置、休息提醒
+src/ScreenEase.CoreService  后台服务、命名管道、HTTP 调试接口
+src/ScreenEase.Desktop      WPF 桌面客户端
+src/ScreenEase.NativeHost   Chromium native messaging host
+tests/ScreenEase.Tests      无额外测试框架的测试程序
+docs/                       API、IPC、桌面 UI 和当前状态文档
+tools/                      辅助安装脚本
 ```
 
-Read hotkey configuration and active registrations:
+## 开发说明
 
-```powershell
-Invoke-RestMethod -Uri http://127.0.0.1:5128/api/hotkeys
-```
+桌面客户端和 core service 分离。桌面 UI 通过命名管道发送命令，core service 负责读取设置、应用显示效果、维护休息提醒状态。
 
-Run native messaging host in safe memory mode:
+默认桌面使用路径无需 HTTP 服务。HTTP API 主要用于调试和其他前端集成，文档见 `docs/API.md`。
 
-```powershell
-$env:ScreenEase__Driver = 'memory'
-dotnet run --project .\src\ScreenEase.NativeHost\ScreenEase.NativeHost.csproj -- --memory
-```
+## License
 
-
+MIT
