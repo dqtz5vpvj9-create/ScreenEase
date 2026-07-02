@@ -73,7 +73,7 @@ Example apply payload:
 ```json
 {
   "command": "apply",
-  "profileId": "reading",
+  "profileId": "long-read",
   "enabled": true
 }
 ```

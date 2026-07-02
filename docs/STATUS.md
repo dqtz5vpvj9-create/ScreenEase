@@ -6,7 +6,7 @@
 - Windows gamma driver using `SetDeviceGammaRamp`.
 - Gamma ramp generation compatible with observed behavior.
 - Memory driver for safe API and CI-style checks.
-- Profiles, brightness, color temperature, day/night schedule.
+- Public-literature-based profiles, brightness, color temperature, day/night schedule.
 - Internal layered-window overlay dimming compatibility path.
 - Global hotkey registration path.
 - Chromium native messaging stdio host.

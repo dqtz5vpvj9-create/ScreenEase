@@ -42,8 +42,8 @@ public enum HotkeyAction
     DecreaseBrightness,
     IncreaseColorTemperature,
     DecreaseColorTemperature,
-    ApplyReadingProfile,
-    ApplyHealthProfile,
+    ApplyLongReadProfile,
+    ApplyLowBlueEveningProfile,
     ToggleOverlay
 }
 
@@ -77,7 +77,7 @@ public sealed class RestTimerState
 public sealed class EyeCareSettings
 {
     public bool Enabled { get; set; }
-    public string ActiveProfileId { get; set; } = "health";
+    public string ActiveProfileId { get; set; } = "low-blue-evening";
     public bool UseNightValues { get; set; }
     public bool UseSchedule { get; set; }
     public TimeOnly Sunrise { get; set; }
@@ -93,7 +93,7 @@ public sealed class EyeCareSettings
 public sealed class DisplayEffect
 {
     public bool Enabled { get; set; }
-    public string ProfileId { get; set; } = "health";
+    public string ProfileId { get; set; } = "low-blue-evening";
     public int ColorTemperatureKelvin { get; set; }
     public int BrightnessPercent { get; set; }
     public bool IsNightValue { get; set; }

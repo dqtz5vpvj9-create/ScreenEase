@@ -34,8 +34,8 @@ public enum HotkeyAction
     DecreaseBrightness,
     IncreaseColorTemperature,
     DecreaseColorTemperature,
-    ApplyReadingProfile,
-    ApplyHealthProfile,
+    ApplyLongReadProfile,
+    ApplyLowBlueEveningProfile,
     ToggleOverlay
 }
 

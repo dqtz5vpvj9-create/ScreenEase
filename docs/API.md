@@ -40,7 +40,7 @@ PUT /api/settings
 Important fields:
 
 - `enabled`: enables display filtering.
-- `activeProfileId`: one of `office`, `reading`, `editing`, `movie`, `game`, `health`, `custom`.
+- `activeProfileId`: one of `day-office`, `long-read`, `detail-work`, `warm-video`, `bright-focus`, `low-blue-evening`, `personal`.
 - `useSchedule`: switches to night values during the night window.
 - `sunrise`, `sunset`: local `HH:mm:ss` times.
 - `profiles`: editable profile list.
@@ -64,7 +64,7 @@ Body:
 
 ```json
 {
-  "profileId": "reading",
+  "profileId": "long-read",
   "colorTemperatureKelvin": 5500,
   "brightnessPercent": 85,
   "enabled": true
@@ -139,8 +139,8 @@ Supported actions:
 - `DecreaseBrightness`
 - `IncreaseColorTemperature`
 - `DecreaseColorTemperature`
-- `ApplyReadingProfile`
-- `ApplyHealthProfile`
+- `ApplyLongReadProfile`
+- `ApplyLowBlueEveningProfile`
 - `ToggleOverlay`
 
 ## Rest Timer

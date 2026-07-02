@@ -5,7 +5,7 @@ public static class Defaults
     public static EyeCareSettings CreateSettings() =>
         new(
             Enabled: false,
-            ActiveProfileId: "health",
+            ActiveProfileId: "low-blue-evening",
             UseNightValues: true,
             UseSchedule: false,
             Sunrise: new TimeOnly(7, 0),
@@ -23,8 +23,8 @@ public static class Defaults
                 new HotkeyBinding("brightness-down", HotkeyAction.DecreaseBrightness, "Ctrl+Alt+Down", false),
                 new HotkeyBinding("temperature-up", HotkeyAction.IncreaseColorTemperature, "Ctrl+Alt+Right", false),
                 new HotkeyBinding("temperature-down", HotkeyAction.DecreaseColorTemperature, "Ctrl+Alt+Left", false),
-                new HotkeyBinding("reading-profile", HotkeyAction.ApplyReadingProfile, "Ctrl+Alt+R", false),
-                new HotkeyBinding("health-profile", HotkeyAction.ApplyHealthProfile, "Ctrl+Alt+H", false),
+                new HotkeyBinding("long-read-profile", HotkeyAction.ApplyLongReadProfile, "Ctrl+Alt+R", false),
+                new HotkeyBinding("low-blue-evening-profile", HotkeyAction.ApplyLowBlueEveningProfile, "Ctrl+Alt+H", false),
                 new HotkeyBinding("toggle-overlay", HotkeyAction.ToggleOverlay, "Ctrl+Alt+D", false)
             ],
             RestTimer: new RestTimerSettings(
@@ -36,13 +36,13 @@ public static class Defaults
                 AutoStart: false),
             Profiles:
             [
-                new EyeProfile("office", "明亮", 5500, 100, 5000, 100),
-                new EyeProfile("reading", "柔和", 5500, 85, 5500, 85),
-                new EyeProfile("editing", "清晰", 6500, 85, 6500, 85),
-                new EyeProfile("movie", "影音", 6000, 90, 5500, 90),
-                new EyeProfile("game", "高亮", 6500, 90, 6000, 90),
-                new EyeProfile("health", "舒缓", 5000, 90, 3700, 80),
-                new EyeProfile("custom", "我的模式", 5500, 90, 5500, 90)
+                new EyeProfile("day-office", "日间办公", 6500, 100, 5000, 90),
+                new EyeProfile("long-read", "长读柔光", 5000, 85, 4200, 75),
+                new EyeProfile("detail-work", "细节清晰", 6500, 90, 5000, 85),
+                new EyeProfile("warm-video", "影音暖光", 4500, 85, 3700, 75),
+                new EyeProfile("bright-focus", "高亮专注", 6500, 95, 5000, 85),
+                new EyeProfile("low-blue-evening", "夜间低蓝", 3700, 75, 3200, 65),
+                new EyeProfile("personal", "我的方案", 5000, 85, 4200, 75)
             ]);
 
     public static RestTimerState CreateRestTimerState() =>
@@ -57,9 +57,9 @@ public static class Defaults
     public static DisplayEffect CreateEffect(DateTimeOffset now) =>
         new(
             Enabled: false,
-            ProfileId: "health",
-            ColorTemperatureKelvin: 5000,
-            BrightnessPercent: 90,
+            ProfileId: "low-blue-evening",
+            ColorTemperatureKelvin: 3700,
+            BrightnessPercent: 75,
             IsNightValue: false,
             AppliedAt: now);
 }

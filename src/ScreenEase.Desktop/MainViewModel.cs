@@ -19,7 +19,7 @@ public sealed class MainViewModel : ObservableObject
     private bool _useSchedule;
     private int _colorTemperatureKelvin = 5000;
     private int _brightnessPercent = 90;
-    private string _profileNameDraft = "我的模式";
+    private string _profileNameDraft = "我的方案";
     private bool _restTimerEnabled;
     private bool _restTimerAutoStart;
     private int _restTimerWorkMinutes = 25;
@@ -279,7 +279,7 @@ public sealed class MainViewModel : ObservableObject
         $"{ColorTemperatureKelvin} K / {BrightnessPercent}%";
 
     public string CurrentProfileName =>
-        SelectedProfile?.Name ?? "舒缓";
+        SelectedProfile?.Name ?? "夜间低蓝";
 
     public bool HasError =>
         !string.IsNullOrWhiteSpace(ErrorText);
@@ -659,18 +659,18 @@ public sealed class MainViewModel : ObservableObject
         };
 
     private static string NormalizeProfileName(string value) =>
-        string.IsNullOrWhiteSpace(value) ? "我的模式" : value.Trim();
+        string.IsNullOrWhiteSpace(value) ? "我的方案" : value.Trim();
 
     private static string CreateCustomProfileId(IEnumerable<string> existingIds)
     {
         var used = existingIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
         var stamp = DateTime.Now.ToString("yyyyMMddHHmmss");
-        var candidate = $"custom-{stamp}";
+        var candidate = $"personal-{stamp}";
         var suffix = 2;
 
         while (used.Contains(candidate))
         {
-            candidate = $"custom-{stamp}-{suffix}";
+            candidate = $"personal-{stamp}-{suffix}";
             suffix++;
         }
 
@@ -680,13 +680,13 @@ public sealed class MainViewModel : ObservableObject
     private static string GetProfileDisplayName(EyeProfile profile) =>
         profile.Id switch
         {
-            "office" => "明亮",
-            "reading" => "柔和",
-            "editing" => "清晰",
-            "movie" => "影音",
-            "game" => "高亮",
-            "health" => "舒缓",
-            "custom" => "我的模式",
+            "day-office" => "日间办公",
+            "long-read" => "长读柔光",
+            "detail-work" => "细节清晰",
+            "warm-video" => "影音暖光",
+            "bright-focus" => "高亮专注",
+            "low-blue-evening" => "夜间低蓝",
+            "personal" => "我的方案",
             _ => profile.Name
         };
 

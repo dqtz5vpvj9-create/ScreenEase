@@ -28,7 +28,7 @@ public static class LegacyIniImporter
             .Select(Validation.Normalize)
             .ToArray();
 
-        var activeProfile = MapMode(ReadInt(screen, "mode", 0)) ?? "health";
+        var activeProfile = MapMode(ReadInt(screen, "mode", 0)) ?? "low-blue-evening";
         var rest = ini.TryGetValue("rest", out var restValues)
             ? new RestTimerSettings(
                 Enabled: ReadBool(restValues, "enable_rest_timer", defaults.RestTimer.Enabled),
@@ -87,15 +87,20 @@ public static class LegacyIniImporter
     }
 
     private static EyeProfile CreateProfile(
-        string careId,
+        string sourceId,
         IReadOnlyDictionary<string, string> screen,
         EyeCareSettings defaults)
     {
-        var targetId = careId switch
+        var targetId = sourceId switch
         {
-            "read" => "reading",
-            "edit" => "editing",
-            _ => careId
+            "office" => "day-office",
+            "read" => "long-read",
+            "edit" => "detail-work",
+            "movie" => "warm-video",
+            "game" => "bright-focus",
+            "health" => "low-blue-evening",
+            "custom" => "personal",
+            _ => sourceId
         };
         var fallback = defaults.Profiles.First(profile => profile.Id == targetId);
         var name = fallback.Name;
@@ -103,21 +108,21 @@ public static class LegacyIniImporter
         return new EyeProfile(
             targetId,
             name,
-            ReadInt(screen, $"{careId}_colortemp", fallback.ColorTemperatureKelvin),
-            ReadInt(screen, $"{careId}_brightness", fallback.BrightnessPercent),
-            ReadInt(screen, $"{careId}_night_colortemp", fallback.NightColorTemperatureKelvin),
-            ReadInt(screen, $"{careId}_night_brightness", fallback.NightBrightnessPercent));
+            ReadInt(screen, $"{sourceId}_colortemp", fallback.ColorTemperatureKelvin),
+            ReadInt(screen, $"{sourceId}_brightness", fallback.BrightnessPercent),
+            ReadInt(screen, $"{sourceId}_night_colortemp", fallback.NightColorTemperatureKelvin),
+            ReadInt(screen, $"{sourceId}_night_brightness", fallback.NightBrightnessPercent));
     }
 
     private static string? MapMode(int mode) =>
         mode switch
         {
-            1 => "reading",
-            2 => "editing",
-            3 => "movie",
-            4 => "game",
-            9 => "health",
-            10 => "office",
+            1 => "long-read",
+            2 => "detail-work",
+            3 => "warm-video",
+            4 => "bright-focus",
+            9 => "low-blue-evening",
+            10 => "day-office",
             _ => null
         };
 

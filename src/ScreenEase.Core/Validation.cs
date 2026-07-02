@@ -65,20 +65,38 @@ public static class Validation
             LongBreakEveryWorkSessions = Math.Clamp(settings.LongBreakEveryWorkSessions, 1, 12)
         };
 
-    public static string NormalizeId(string value) =>
-        string.IsNullOrWhiteSpace(value) ? "custom" : value.Trim().ToLowerInvariant();
+    public static string NormalizeId(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "personal";
+        }
+
+        var normalized = value.Trim().ToLowerInvariant();
+        return normalized switch
+        {
+            "office" => "day-office",
+            "reading" or "read" => "long-read",
+            "editing" or "edit" => "detail-work",
+            "movie" => "warm-video",
+            "game" => "bright-focus",
+            "health" => "low-blue-evening",
+            "custom" => "personal",
+            _ => normalized
+        };
+    }
 
     private static string NormalizeProfileName(string id, string name) =>
         NormalizeId(id) switch
         {
-            "office" => "明亮",
-            "reading" => "柔和",
-            "editing" => "清晰",
-            "movie" => "影音",
-            "game" => "高亮",
-            "health" => "舒缓",
-            "custom" => "我的模式",
-            _ => string.IsNullOrWhiteSpace(name) ? "我的模式" : name.Trim()
+            "day-office" => "日间办公",
+            "long-read" => "长读柔光",
+            "detail-work" => "细节清晰",
+            "warm-video" => "影音暖光",
+            "bright-focus" => "高亮专注",
+            "low-blue-evening" => "夜间低蓝",
+            "personal" => "我的方案",
+            _ => string.IsNullOrWhiteSpace(name) ? "我的方案" : name.Trim()
         };
 
     public static string NormalizeColorHex(string value)

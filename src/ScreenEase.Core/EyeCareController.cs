@@ -287,11 +287,11 @@ public sealed class EyeCareController(
             case HotkeyAction.DecreaseColorTemperature:
                 await ApplyAsync(new ApplyEffectCommand(effect.ProfileId, effect.ColorTemperatureKelvin - 250, effect.BrightnessPercent, true), cancellationToken);
                 break;
-            case HotkeyAction.ApplyReadingProfile:
-                await ApplyAsync(new ApplyEffectCommand("reading", null, null, true), cancellationToken);
+            case HotkeyAction.ApplyLongReadProfile:
+                await ApplyAsync(new ApplyEffectCommand("long-read", null, null, true), cancellationToken);
                 break;
-            case HotkeyAction.ApplyHealthProfile:
-                await ApplyAsync(new ApplyEffectCommand("health", null, null, true), cancellationToken);
+            case HotkeyAction.ApplyLowBlueEveningProfile:
+                await ApplyAsync(new ApplyEffectCommand("low-blue-evening", null, null, true), cancellationToken);
                 break;
             case HotkeyAction.ToggleOverlay:
                 await UpdateOverlayAsync(new UpdateOverlayCommand(!settings.Overlay.Enabled, null, null), cancellationToken);

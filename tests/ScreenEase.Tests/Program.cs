@@ -106,8 +106,33 @@ static void DefaultProfileLabelsAreIndependent()
         AssertFalse(blocked.Contains(profile.Name), $"profile {profile.Id} uses a blocked label");
     }
 
+    var blockedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "office",
+        "reading",
+        "editing",
+        "movie",
+        "game",
+        "health",
+        "custom"
+    };
+    foreach (var profile in Defaults.CreateSettings().Profiles)
+    {
+        AssertFalse(blockedIds.Contains(profile.Id), $"profile {profile.Name} uses a blocked id");
+    }
+
+    var labels = Defaults.CreateSettings().Profiles.Select(profile => profile.Name).ToArray();
+    AssertEqual("日间办公", labels[0], "office label");
+    AssertEqual("长读柔光", labels[1], "reading label");
+    AssertEqual("细节清晰", labels[2], "editing label");
+    AssertEqual("影音暖光", labels[3], "movie label");
+    AssertEqual("高亮专注", labels[4], "game label");
+    AssertEqual("夜间低蓝", labels[5], "health label");
+    AssertEqual("我的方案", labels[6], "custom label");
+
     var migrated = Validation.Normalize(new EyeProfile("health", "Health", 5000, 90, 3700, 80));
-    AssertEqual("舒缓", migrated.Name, "migrated health label");
+    AssertEqual("low-blue-evening", migrated.Id, "migrated health id");
+    AssertEqual("夜间低蓝", migrated.Name, "migrated health label");
 }
 
 static void NightWindowSpansMidnight()
@@ -238,7 +263,7 @@ static void NativeCommandHandlerUpdatesSettings()
     var settings = Defaults.CreateSettings() with
     {
         Enabled = false,
-        ActiveProfileId = "reading"
+        ActiveProfileId = "long-read"
     };
     var json = JsonSerializer.Serialize(
         new
@@ -257,7 +282,7 @@ static void NativeCommandHandlerUpdatesSettings()
     AssertTrue(response.Ok, "settings command should succeed.");
     var updated = (EyeCareSettings)response.Data!;
     AssertFalse(updated.Enabled, "settings should disable filtering.");
-    AssertEqual("reading", updated.ActiveProfileId, "active profile");
+    AssertEqual("long-read", updated.ActiveProfileId, "active profile");
 }
 
 static void LegacyIniImportMapsProfiles()
@@ -290,9 +315,9 @@ static void LegacyIniImportMapsProfiles()
     try
     {
         var settings = LegacyIniImporter.ImportAsync(path, CancellationToken.None).GetAwaiter().GetResult();
-        var reading = settings.Profiles.First(profile => profile.Id == "reading");
+        var reading = settings.Profiles.First(profile => profile.Id == "long-read");
 
-        AssertEqual("health", settings.ActiveProfileId, "active profile");
+        AssertEqual("low-blue-evening", settings.ActiveProfileId, "active profile");
         AssertTrue(settings.UseSchedule, "schedule should import as enabled.");
         AssertEqual(5500, reading.ColorTemperatureKelvin, "reading kelvin");
         AssertEqual(45, settings.RestTimer.WorkMinutes, "work minutes");
@@ -310,12 +335,12 @@ static void ControllerAppliesSelectedProfile()
 
     controller.InitializeAsync(CancellationToken.None).GetAwaiter().GetResult();
     var effect = controller.ApplyAsync(
-        new ApplyEffectCommand("health", null, null, true),
+        new ApplyEffectCommand("low-blue-evening", null, null, true),
         CancellationToken.None).GetAwaiter().GetResult();
 
-    AssertEqual("health", effect.ProfileId, "profile id");
-    AssertEqual(5000, effect.ColorTemperatureKelvin, "health kelvin");
-    AssertEqual(90, effect.BrightnessPercent, "health brightness");
+    AssertEqual("low-blue-evening", effect.ProfileId, "profile id");
+    AssertEqual(3700, effect.ColorTemperatureKelvin, "health kelvin");
+    AssertEqual(75, effect.BrightnessPercent, "health brightness");
     AssertTrue(display.LastRequest is not null, "driver should receive request.");
 }
 
