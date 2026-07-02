@@ -1,5 +1,8 @@
 # ScreenEase
 
+[![CI](https://github.com/dqtz5vpvj9-create/ScreenEase/actions/workflows/ci.yml/badge.svg)](https://github.com/dqtz5vpvj9-create/ScreenEase/actions/workflows/ci.yml)
+[![Release](https://github.com/dqtz5vpvj9-create/ScreenEase/actions/workflows/release.yml/badge.svg)](https://github.com/dqtz5vpvj9-create/ScreenEase/actions/workflows/release.yml)
+
 ScreenEase 是一个开源的 Windows 护眼工具，用原生 WPF 界面调节屏幕色温和亮度，并提供休息提醒。
 
 它适合长时间看屏幕的人：写代码、阅读文档、办公、看视频时，可以快速切换更舒服的显示模式，也可以保存自己的常用配置。
@@ -86,6 +89,17 @@ dotnet run --project .\src\ScreenEase.CoreService\ScreenEase.CoreService.csproj 
 ```powershell
 dotnet run --project .\tests\ScreenEase.Tests\ScreenEase.Tests.csproj -c Release
 ```
+
+## 发布
+
+推送 `v*` 标签会自动创建 GitHub Release，并上传 `win-x64` 压缩包。
+
+```powershell
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+也可以在 GitHub Actions 页面手动运行 Release workflow。
 
 ## 项目结构
 
