@@ -82,6 +82,7 @@ public static class Validation
             "game" => "bright-focus",
             "health" => "low-blue-evening",
             "custom" => "personal",
+            "manual" => Defaults.ManualProfileId,
             _ => normalized
         };
     }
@@ -96,6 +97,7 @@ public static class Validation
             "bright-focus" => "高亮专注",
             "low-blue-evening" => "夜间低蓝",
             "personal" => "我的方案",
+            Defaults.ManualProfileId => Defaults.ManualProfileName,
             _ => string.IsNullOrWhiteSpace(name) ? "我的方案" : name.Trim()
         };
 

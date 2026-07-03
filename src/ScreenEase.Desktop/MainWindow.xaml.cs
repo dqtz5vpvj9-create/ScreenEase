@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 
 namespace ScreenEase.Desktop;
@@ -18,5 +19,13 @@ public partial class MainWindow : Window
         _timer.Tick += (_, _) => _viewModel.TickRestTimer();
         _timer.Start();
         Loaded += async (_, _) => await _viewModel.RefreshAsync();
+    }
+
+    private void ProfilesList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ProfilesList.SelectedItem is not null)
+        {
+            ProfilesList.ScrollIntoView(ProfilesList.SelectedItem);
+        }
     }
 }

@@ -90,16 +90,32 @@ public sealed class EyeCareController(
                 : Validation.NormalizeId(command.ProfileId);
             var profile = FindProfile(settings, profileId);
             var enabled = command.Enabled ?? settings.Enabled;
+            var hasManualValues = command.ColorTemperatureKelvin.HasValue || command.BrightnessPercent.HasValue;
+            var useManualProfile = profileId == Defaults.ManualProfileId || (command.ProfileId is null && hasManualValues);
 
             var kelvin = Validation.ClampKelvin(command.ColorTemperatureKelvin ?? profile.ColorTemperatureKelvin);
             var brightness = Validation.ClampBrightness(command.BrightnessPercent ?? profile.BrightnessPercent);
-
-            settings = settings with
+            if (useManualProfile)
             {
-                Enabled = enabled,
-                ActiveProfileId = profile.Id
-            };
-            effect = new DisplayEffect(enabled, profile.Id, kelvin, brightness, false, now);
+                profile = Defaults.CreateManualProfile(kelvin, brightness);
+                settings = settings with
+                {
+                    Enabled = enabled,
+                    ActiveProfileId = profile.Id,
+                    Profiles = UpsertProfile(settings.Profiles, profile)
+                };
+                effect = new DisplayEffect(enabled, profile.Id, kelvin, brightness, false, now);
+            }
+            else
+            {
+                settings = settings with
+                {
+                    Enabled = enabled,
+                    ActiveProfileId = profile.Id
+                };
+                effect = new DisplayEffect(enabled, profile.Id, kelvin, brightness, false, now);
+            }
+
             await repository.SaveAsync(settings, cancellationToken);
         }
         finally
@@ -397,6 +413,29 @@ public sealed class EyeCareController(
         source.Profiles.FirstOrDefault(profile => profile.Id == Validation.NormalizeId(profileId))
         ?? source.Profiles.FirstOrDefault()
         ?? Defaults.CreateSettings().Profiles.First();
+
+    private static IReadOnlyList<EyeProfile> UpsertProfile(
+        IReadOnlyList<EyeProfile> profiles,
+        EyeProfile profile)
+    {
+        var result = profiles.ToList();
+        var index = result.FindIndex(item => item.Id == profile.Id);
+        if (index >= 0)
+        {
+            result[index] = profile;
+            return result;
+        }
+
+        var personalIndex = result.FindIndex(item => item.Id == "personal");
+        if (personalIndex >= 0)
+        {
+            result.Insert(personalIndex, profile);
+            return result;
+        }
+
+        result.Add(profile);
+        return result;
+    }
 
     private static bool HasEffectChanged(DisplayEffect current, DisplayEffect next) =>
         current.Enabled != next.Enabled

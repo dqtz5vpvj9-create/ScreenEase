@@ -2,6 +2,9 @@ namespace ScreenEase.Core;
 
 public static class Defaults
 {
+    public const string ManualProfileId = "manual-adjustment";
+    public const string ManualProfileName = "自定义调节";
+
     public static EyeCareSettings CreateSettings() =>
         new(
             Enabled: false,
@@ -62,6 +65,15 @@ public static class Defaults
             BrightnessPercent: 75,
             IsNightValue: false,
             AppliedAt: now);
+
+    public static EyeProfile CreateManualProfile(int kelvin, int brightnessPercent) =>
+        new(
+            ManualProfileId,
+            ManualProfileName,
+            Validation.ClampKelvin(kelvin),
+            Validation.ClampBrightness(brightnessPercent),
+            Validation.ClampKelvin(kelvin),
+            Validation.ClampBrightness(brightnessPercent));
 }
 
 

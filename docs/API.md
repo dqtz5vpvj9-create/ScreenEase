@@ -40,7 +40,7 @@ PUT /api/settings
 Important fields:
 
 - `enabled`: enables display filtering.
-- `activeProfileId`: one of `day-office`, `long-read`, `detail-work`, `warm-video`, `bright-focus`, `low-blue-evening`, `personal`.
+- `activeProfileId`: one of `day-office`, `long-read`, `detail-work`, `warm-video`, `bright-focus`, `low-blue-evening`, `personal`, `manual-adjustment`.
 - `useSchedule`: switches to night values during the night window.
 - `sunrise`, `sunset`: local `HH:mm:ss` times.
 - `profiles`: editable profile list.
@@ -72,6 +72,8 @@ Body:
 ```
 
 All properties are optional. Missing color and brightness values are taken from the selected profile.
+
+When manual color or brightness values are applied without an explicit profile, the service creates or updates the `manual-adjustment` profile named `自定义调节` and makes it active.
 
 ## Disable Filtering
 

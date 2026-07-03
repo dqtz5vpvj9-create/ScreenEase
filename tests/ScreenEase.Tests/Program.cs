@@ -18,6 +18,7 @@ var tests = new List<(string Name, Action Body)>
     ("native command handler updates settings", NativeCommandHandlerUpdatesSettings),
     ("legacy INI import maps profiles", LegacyIniImportMapsProfiles),
     ("controller applies selected profile", ControllerAppliesSelectedProfile),
+    ("controller persists manual adjustment profile", ControllerPersistsManualAdjustmentProfile),
     ("controller initializes when display reset fails", ControllerInitializesWhenDisplayResetFails)
 };
 
@@ -342,6 +343,29 @@ static void ControllerAppliesSelectedProfile()
     AssertEqual(3700, effect.ColorTemperatureKelvin, "health kelvin");
     AssertEqual(75, effect.BrightnessPercent, "health brightness");
     AssertTrue(display.LastRequest is not null, "driver should receive request.");
+}
+
+static void ControllerPersistsManualAdjustmentProfile()
+{
+    var display = new InMemoryDisplayDriver();
+    var controller = new EyeCareController(new InMemorySettingsRepository(), display);
+
+    controller.InitializeAsync(CancellationToken.None).GetAwaiter().GetResult();
+    var effect = controller.ApplyAsync(
+        new ApplyEffectCommand(null, 5700, 100, true),
+        CancellationToken.None).GetAwaiter().GetResult();
+    controller.TickAsync(CancellationToken.None).GetAwaiter().GetResult();
+    var state = controller.GetStateAsync(CancellationToken.None).GetAwaiter().GetResult();
+    var manual = state.Settings.Profiles.First(profile => profile.Id == Defaults.ManualProfileId);
+
+    AssertEqual(Defaults.ManualProfileId, effect.ProfileId, "manual effect profile id");
+    AssertEqual(Defaults.ManualProfileId, state.Settings.ActiveProfileId, "manual active profile id");
+    AssertEqual(Defaults.ManualProfileId, state.Effect.ProfileId, "manual state profile id");
+    AssertEqual(Defaults.ManualProfileName, manual.Name, "manual profile name");
+    AssertEqual(5700, manual.ColorTemperatureKelvin, "manual kelvin");
+    AssertEqual(100, manual.BrightnessPercent, "manual brightness");
+    AssertEqual(5700, state.Effect.ColorTemperatureKelvin, "manual state kelvin");
+    AssertEqual(100, state.Effect.BrightnessPercent, "manual state brightness");
 }
 
 static void ControllerInitializesWhenDisplayResetFails()

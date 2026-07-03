@@ -349,8 +349,10 @@
                             Margin="0,14,0,0"
                             Height="44" />
 
-                    <ListBox ItemsSource="{Binding Profiles}"
-                             SelectedItem="{Binding SelectedProfile, Mode=TwoWay}">
+                    <ListBox x:Name="ProfilesList"
+                             ItemsSource="{Binding Profiles}"
+                             SelectedItem="{Binding SelectedProfile, Mode=TwoWay}"
+                             SelectionChanged="ProfilesList_SelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
